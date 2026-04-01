@@ -1,29 +1,32 @@
 ---
-description: Keep CHANGELOG.md updated when making user-visible or structural changes
+description: Always update CHANGELOG.md (Keep a Changelog) when shipping meaningful changes
 alwaysApply: true
 ---
 
-# Changelog
+# Changelog discipline
 
-When you complete work that should be visible to humans (features, fixes, breaking changes, notable refactors, new apps/packages, or deployment-relevant behavior), **update [CHANGELOG.md](../../CHANGELOG.md)** in the same change.
+The project changelog lives at the repository root: **`CHANGELOG.md`**.
 
-## What to log
+Whenever work is **meaningful to humans** (features, fixes, breaking or behavior changes, new packages/apps, env vars, persistence/schema, public APIs, security, or contributor-facing tooling), update **`CHANGELOG.md` in the same change**—do not leave documentation-only follow-ups unless the user explicitly asked to skip it.
 
-- **Added** — New capabilities, packages, endpoints, env vars, or docs users care about.
-- **Changed** — Behavior or API changes that are not fixes.
-- **Fixed** — Bug fixes.
-- **Deprecated** / **Removed** — When phasing out or deleting behavior.
-- **Security** — Vulnerability fixes or hardening.
+## Sections (Keep a Changelog order)
 
-Skip trivial edits (typos only, internal-only renames with no impact) unless they affect contributors or CI.
+| Section | Use for |
+|---------|---------|
+| **Added** | New behavior, modules, endpoints, tables, env vars, scripts, docs that matter to users/operators. |
+| **Changed** | Non-fix behavior or API changes. |
+| **Fixed** | Bug fixes. |
+| **Deprecated** / **Removed** | Sunsetting or deletion. |
+| **Security** | Vulnerabilities and hardening. |
 
-## How to write entries
+Skip **only** pure typo/formatting edits with zero behavioral or contract impact.
 
-- Use imperative mood (“Add…”, “Fix…”).
-- One bullet per logical change; link issues/PRs if the repo uses them.
-- Keep **[Unreleased]** current: add bullets there first. When releasing, rename **[Unreleased]** to a version section with date (e.g. `## [0.2.0] - 2026-04-01`) and start a fresh empty **Unreleased** section.
-- Follow [Keep a Changelog](https://keepachangelog.com/) section order.
+## Style
 
-## Check before finishing a task
+- Imperative bullets: “Add…”, “Fix…”, “Change…”.
+- Prefer one bullet per logical change.
+- Maintain **`[Unreleased]`** at the top with current bullets. On release, rename to `## [x.y.z] - YYYY-MM-DD` and add a new empty **`## [Unreleased]`** section.
 
-If the user’s request altered behavior, structure, or documented contracts, confirm **CHANGELOG.md** reflects it before considering the task done.
+## Before you stop
+
+If the task changed runtime behavior, data shape, deployment, or how someone uses the repo, **`CHANGELOG.md` must already reflect it** before the task is considered done.

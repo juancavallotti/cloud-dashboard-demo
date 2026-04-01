@@ -24,4 +24,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Expanded `.cursor/rules/changelog.mdc` (always-apply instructions to keep root `CHANGELOG.md` aligned with Keep a Changelog).
 - Updated reference architecture diagram (`docs/assets/architecture-diagram.png`).
