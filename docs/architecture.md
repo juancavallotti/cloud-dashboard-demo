@@ -73,6 +73,8 @@ flowchart TB
 
 ## Environment variables (summary)
 
+For local runs, copy [`.env.example`](../.env.example) to `.env` at the **repository root**. The dashboard (`next.config`) and `@repo/db` load that file into `process.env` (no extra flags needed).
+
 | Variable | Used by |
 |----------|---------|
 | `DATABASE_URL` | `@repo/db`, all apps that touch Postgres |

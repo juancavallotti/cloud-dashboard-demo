@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@repo/types": "workspace:*",
+    "dotenv": "^16.4.7",
     "pg": "^8.13.1"
   },
   "devDependencies": {

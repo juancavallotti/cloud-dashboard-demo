@@ -17,8 +17,11 @@ Optional, depending on what you run:
 From the repository root:
 
 ```bash
+cp .env.example .env
 pnpm install
 ```
+
+Edit `.env` with your local values (database URL, Pub/Sub subscription, and any optional job secrets). The repo loads this file from the **repository root** for Next.js (`apps/dashboard`) and for any process that imports `@repo/db` (migrations, jobs, consumer).
 
 Build everything (optional sanity check):
 
@@ -61,10 +64,9 @@ After `pnpm build`, you can also run production builds with `pnpm --filter <name
 
 ### Database migrations
 
-With PostgreSQL available, set `DATABASE_URL` and apply SQL migrations:
+With PostgreSQL available, ensure `DATABASE_URL` is set in your root `.env` (or export it), then:
 
 ```bash
-export DATABASE_URL="postgres://user:pass@localhost:5432/yourdb"
 pnpm db:migrate
 ```
 

@@ -1,4 +1,10 @@
+import { config as loadEnv } from "dotenv";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
+
+const repoRootEnv = resolve(dirname(fileURLToPath(import.meta.url)), "../../..", ".env");
+loadEnv({ path: repoRootEnv });
 
 let pool: pg.Pool | null = null;
 
