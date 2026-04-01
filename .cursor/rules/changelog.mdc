@@ -1,0 +1,29 @@
+---
+description: Keep CHANGELOG.md updated when making user-visible or structural changes
+alwaysApply: true
+---
+
+# Changelog
+
+When you complete work that should be visible to humans (features, fixes, breaking changes, notable refactors, new apps/packages, or deployment-relevant behavior), **update [CHANGELOG.md](../../CHANGELOG.md)** in the same change.
+
+## What to log
+
+- **Added** — New capabilities, packages, endpoints, env vars, or docs users care about.
+- **Changed** — Behavior or API changes that are not fixes.
+- **Fixed** — Bug fixes.
+- **Deprecated** / **Removed** — When phasing out or deleting behavior.
+- **Security** — Vulnerability fixes or hardening.
+
+Skip trivial edits (typos only, internal-only renames with no impact) unless they affect contributors or CI.
+
+## How to write entries
+
+- Use imperative mood (“Add…”, “Fix…”).
+- One bullet per logical change; link issues/PRs if the repo uses them.
+- Keep **[Unreleased]** current: add bullets there first. When releasing, rename **[Unreleased]** to a version section with date (e.g. `## [0.2.0] - 2026-04-01`) and start a fresh empty **Unreleased** section.
+- Follow [Keep a Changelog](https://keepachangelog.com/) section order.
+
+## Check before finishing a task
+
+If the user’s request altered behavior, structure, or documented contracts, confirm **CHANGELOG.md** reflects it before considering the task done.

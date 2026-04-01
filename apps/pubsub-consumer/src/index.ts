@@ -2,11 +2,12 @@ import { PubSub } from "@google-cloud/pubsub";
 import { closePool, getPool, insertHttpRequestRecord } from "@repo/db";
 import type { NewHttpRequestRecord } from "@repo/types";
 
-const subscriptionName = process.env.PUBSUB_SUBSCRIPTION;
-if (!subscriptionName) {
+const subscriptionEnv = process.env.PUBSUB_SUBSCRIPTION;
+if (!subscriptionEnv) {
   console.error("Missing PUBSUB_SUBSCRIPTION");
   process.exit(1);
 }
+const subscriptionName = subscriptionEnv;
 
 function parsePayload(data: Buffer): NewHttpRequestRecord {
   const raw = JSON.parse(data.toString("utf8")) as Record<string, unknown>;

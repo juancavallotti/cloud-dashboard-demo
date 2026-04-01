@@ -1,0 +1,84 @@
+# Architecture
+
+This repository is a **pnpm workspace** monorepo orchestrated by **Turborepo**. All packages use **TypeScript**, **ESM** (`"type": "module"`), and target **Node 20+**. The persistence layer uses **PostgreSQL** with the **`pg`** driver and **SQL migrations** (no ORM).
+
+## System overview (reference diagram)
+
+High-level target architecture: tenants send telemetry through a cloud queue into a telemetry surface (ingest, summarize, dashboard API, DB maintenance), with retention tiers for raw vs summarized vs historic data and OAuth 2.1 for auth. The diagram below is the source-of-truth sketch for that shape; concrete apps and packages are mapped in [Workspace map](#workspace-map).
+
+![Reference architecture: tenants, cloud queue, telemetry service modules, Next.js dashboard, retention tiers, OAuth](assets/architecture-diagram.png)
+
+## Workspace map
+
+| Path | Name | Role |
+|------|------|------|
+| `apps/dashboard` | `dashboard` | Next.js (App Router) UI; transpiles workspace packages `@repo/types` and `@repo/db`. |
+| `apps/pubsub-consumer` | `pubsub-consumer` | Subscribes to a GCP Pub/Sub subscription and inserts rows into `http_request_records`. |
+| `apps/job-retention` | `job-retention` | HTTP service: `POST /run` applies retention (deletes old rows). Intended for **Cloud Scheduler** (or cron) triggers. |
+| `apps/job-daily-metrics` | `job-daily-metrics` | HTTP service: `POST /run` returns daily aggregation queries over `http_request_records`. Intended for scheduled runs. |
+| `packages/types` | `@repo/types` | Shared TypeScript types (e.g. `HttpRequestRecord`, `NewHttpRequestRecord`). |
+| `packages/db` | `@repo/db` | `pg` pool (`DATABASE_URL`), migration runner, `insertHttpRequestRecord`, SQL under `migrations/`. |
+
+## Data model
+
+The primary table is **`http_request_records`**, defined in [`packages/db/migrations`](../packages/db/migrations). It stores per-request telemetry: tenant, service, start/end times, HTTP method, and response code. See migration SQL for exact columns and indexes.
+
+## Request and data flows
+
+```mermaid
+flowchart TB
+  subgraph ingest [Ingestion]
+    PS[GCP Pub/Sub topic]
+    SUB[pubsub-consumer]
+    PS --> SUB
+  end
+
+  subgraph data [Data]
+    PG[(PostgreSQL)]
+  end
+
+  subgraph apps [Applications]
+    DASH[dashboard]
+    JR[job-retention]
+    JM[job-daily-metrics]
+  end
+
+  SUB -->|insert| PG
+  DASH -->|read via server routes or actions| PG
+  JR -->|delete by retention policy| PG
+  JM -->|aggregate| PG
+```
+
+- **Dashboard**: Reads (and optionally writes) through `@repo/db` in server-only code paths; avoid importing `@repo/db` in client components.
+- **Pub/Sub consumer**: Expects JSON payloads with fields compatible with `NewHttpRequestRecord` (camelCase or snake_case aliases supported in code).
+- **Jobs**: Expose `GET /health` and `POST /run`. Optional shared **`JOB_SECRET`** checked via header `x-job-secret` for non-OIDC setups.
+
+## GCP deployment (typical)
+
+| Component | Common pattern |
+|-----------|----------------|
+| `pubsub-consumer` | **Cloud Run** with a **pull** subscription (keep min instances ≥ 1 if always listening) or **push** subscription to an HTTP handler. |
+| `job-retention`, `job-daily-metrics` | **Cloud Run** services; **Cloud Scheduler** sends HTTP **POST** to `/run` (OIDC from scheduler to Cloud Run, or `JOB_SECRET`). |
+| `dashboard` | **Cloud Run** or **Vercel**; set `DATABASE_URL` for server-side DB access. |
+| Secrets | **Secret Manager** for `DATABASE_URL`, `JOB_SECRET`, and any API keys; inject as env vars at deploy time. |
+
+## Commands (from repo root)
+
+| Command | Purpose |
+|---------|---------|
+| `pnpm install` | Install all workspace dependencies. |
+| `pnpm build` | Turborepo build of all packages. |
+| `pnpm dev` | Turborepo dev (all configured dev tasks). |
+| `pnpm db:migrate` | Run SQL migrations (`DATABASE_URL` required). |
+
+## Environment variables (summary)
+
+| Variable | Used by |
+|----------|---------|
+| `DATABASE_URL` | `@repo/db`, all apps that touch Postgres |
+| `PUBSUB_SUBSCRIPTION` | `pubsub-consumer` (full subscription resource name) |
+| `JOB_SECRET` | `job-retention`, `job-daily-metrics` (optional) |
+| `RETENTION_DAYS` | `job-retention` (default: 90) |
+| `PORT` | Job HTTP servers (defaults: 8080 / 8081) |
+
+GCP credentials for Pub/Sub use **Application Default Credentials** (e.g. workload identity on Cloud Run).
