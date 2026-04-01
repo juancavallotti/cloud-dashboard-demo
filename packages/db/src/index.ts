@@ -29,3 +29,9 @@ export async function closePool(): Promise<void> {
 export type { Pool, PoolClient, QueryResult } from "pg";
 
 export { insertHttpRequestRecord } from "./http-request-records.js";
+export {
+  listHttpRequestRecordsForServiceDay,
+  listHourlyStatsForServiceDay,
+  listServiceDailyDashboardStats,
+  upsertServiceDailyStatsForDayRange,
+} from "./dashboard-stats.js";

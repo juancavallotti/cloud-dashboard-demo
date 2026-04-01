@@ -78,6 +78,8 @@ pnpm db:migrate
 | `PUBSUB_SUBSCRIPTION` | `pubsub-consumer` (full subscription resource name) |
 | `JOB_SECRET` | Optional auth for `POST /run` on job apps |
 | `RETENTION_DAYS` | `job-retention` (default: `90`) |
+| `METRICS_LOOKBACK_DAYS` | `job-daily-metrics` re-aggregation window (default: `7`) |
+| `DASHBOARD_TENANT_ID` | Optional: filter the dashboard home to one tenant |
 | `PORT` | Job servers (defaults differ per app; see [docs/architecture.md](docs/architecture.md)) |
 
 ## Other commands

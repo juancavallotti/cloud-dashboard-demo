@@ -12,16 +12,17 @@ High-level target architecture: tenants send telemetry through a cloud queue int
 
 | Path | Name | Role |
 |------|------|------|
-| `apps/dashboard` | `dashboard` | Next.js (App Router) UI; transpiles workspace packages `@repo/types` and `@repo/db`. |
+| `apps/dashboard` | `dashboard` | Next.js (App Router) UI: reads `service_daily_dashboard_stats` and raw `http_request_records` for drill-down; transpiles `@repo/types` and `@repo/db`. |
 | `apps/pubsub-consumer` | `pubsub-consumer` | Subscribes to a GCP Pub/Sub subscription and inserts rows into `http_request_records`. |
 | `apps/job-retention` | `job-retention` | HTTP service: `POST /run` applies retention (deletes old rows). Intended for **Cloud Scheduler** (or cron) triggers. |
-| `apps/job-daily-metrics` | `job-daily-metrics` | HTTP service: `POST /run` returns daily aggregation queries over `http_request_records`. Intended for scheduled runs. |
+| `apps/job-daily-metrics` | `job-daily-metrics` | HTTP service: `POST /run` upserts **`service_daily_dashboard_stats`** from `http_request_records` for the last `METRICS_LOOKBACK_DAYS` UTC days. Intended for scheduled runs. |
 | `packages/types` | `@repo/types` | Shared TypeScript types (e.g. `HttpRequestRecord`, `NewHttpRequestRecord`). |
 | `packages/db` | `@repo/db` | `pg` pool (`DATABASE_URL`), migration runner, `insertHttpRequestRecord`, SQL under `migrations/`. |
 
 ## Data model
 
-The primary table is **`http_request_records`**, defined in [`packages/db/migrations`](../packages/db/migrations). It stores per-request telemetry: tenant, service, start/end times, HTTP method, and response code. See migration SQL for exact columns and indexes.
+- **`http_request_records`** — Raw request rows (ingest). Columns: tenant, service, start/end, HTTP method, response code. See [`packages/db/migrations`](../packages/db/migrations).
+- **`service_daily_dashboard_stats`** — One row per **tenant**, **service**, and **UTC calendar day** with counts: total requests, success (2xx), unauthorized (401), other 4xx, 5xx. Populated by the daily metrics job from raw data. The dashboard shows **average requests per second** for the day as `request_count / 86400`, plus **rates** (each count ÷ `request_count`). Drill-down uses raw rows and **hourly** buckets (epoch-aligned UTC hours) for the same day.
 
 ## Request and data flows
 
@@ -81,6 +82,8 @@ For local runs, copy [`.env.example`](../.env.example) to `.env` at the **reposi
 | `PUBSUB_SUBSCRIPTION` | `pubsub-consumer` (full subscription resource name) |
 | `JOB_SECRET` | `job-retention`, `job-daily-metrics` (optional) |
 | `RETENTION_DAYS` | `job-retention` (default: 90) |
+| `METRICS_LOOKBACK_DAYS` | `job-daily-metrics` (default: 7) |
+| `DASHBOARD_TENANT_ID` | Optional filter on the Next.js home dashboard |
 | `PORT` | Job HTTP servers (defaults: 8080 / 8081) |
 
 GCP credentials for Pub/Sub use **Application Default Credentials** (e.g. workload identity on Cloud Run).
