@@ -1,6 +1,7 @@
-import { computeServiceDailyRates } from "@repo/types";
-import { getPool, listServiceDailyDashboardStats } from "@repo/db";
+import { computeServiceDailyRates, type ServiceDailyDashboardStats } from "@repo/types";
 import Link from "next/link";
+import { getDashboardViewPersistence } from "@/lib/dashboard-view-persistence";
+import { DashboardViewService } from "@/services/dashboard-view.service";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +18,12 @@ function rps(n: number): string {
 export default async function Home() {
   const tenantFilter = process.env.DASHBOARD_TENANT_ID?.trim() || undefined;
 
-  let rows: Awaited<ReturnType<typeof listServiceDailyDashboardStats>> = [];
+  let rows: ServiceDailyDashboardStats[] = [];
   let loadError: string | null = null;
 
   try {
-    const pool = getPool();
-    rows = await listServiceDailyDashboardStats(pool, {
+    const dashboard = new DashboardViewService(getDashboardViewPersistence());
+    rows = await dashboard.listOverview({
       tenantId: tenantFilter,
       limitDays: 30,
     });

@@ -1,6 +1,6 @@
 import { PubSub } from "@google-cloud/pubsub";
-import { closePool, getPool, insertHttpRequestRecord } from "@repo/db";
-import type { NewHttpRequestRecord } from "@repo/types";
+import { closePool, createPgHttpIngestPersistence, getPool } from "@repo/db";
+import { PubSubIngestService } from "./services/pubsub-ingest.service.js";
 
 const subscriptionEnv = process.env.PUBSUB_SUBSCRIPTION;
 if (!subscriptionEnv) {
@@ -9,28 +9,8 @@ if (!subscriptionEnv) {
 }
 const subscriptionName = subscriptionEnv;
 
-function parsePayload(data: Buffer): NewHttpRequestRecord {
-  const raw = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
-  const tenantId = String(raw.tenantId ?? raw.tenant_id ?? "");
-  const serviceId = String(raw.serviceId ?? raw.service_id ?? "");
-  const httpMethod = String(raw.httpMethod ?? raw.http_method ?? "GET");
-  const responseCode = Number(raw.responseCode ?? raw.response_code ?? 0);
-  const startedAt = new Date(String(raw.startedAt ?? raw.started_at ?? Date.now()));
-  const endedAt = new Date(String(raw.endedAt ?? raw.ended_at ?? Date.now()));
-  const id = raw.id != null ? String(raw.id) : undefined;
-  if (!tenantId || !serviceId) {
-    throw new Error("tenantId and serviceId are required");
-  }
-  return {
-    id,
-    tenantId,
-    serviceId,
-    startedAt,
-    httpMethod,
-    endedAt,
-    responseCode,
-  };
-}
+const pool = getPool();
+const ingestService = new PubSubIngestService(createPgHttpIngestPersistence(pool));
 
 async function main(): Promise<void> {
   const pubsub = new PubSub();
@@ -38,9 +18,7 @@ async function main(): Promise<void> {
 
   subscription.on("message", async (message) => {
     try {
-      const row = parsePayload(message.data);
-      const pool = getPool();
-      const id = await insertHttpRequestRecord(pool, row);
+      const id = await ingestService.ingestMessage(message.data);
       console.log("Inserted http_request_records row", id);
       message.ack();
     } catch (err) {

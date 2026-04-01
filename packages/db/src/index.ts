@@ -30,8 +30,8 @@ export type { Pool, PoolClient, QueryResult } from "pg";
 
 export { insertHttpRequestRecord } from "./http-request-records.js";
 export {
-  listHttpRequestRecordsForServiceDay,
-  listHourlyStatsForServiceDay,
-  listServiceDailyDashboardStats,
-  upsertServiceDailyStatsForDayRange,
-} from "./dashboard-stats.js";
+  createPgDashboardViewPersistence,
+  createPgHttpIngestPersistence,
+  createPgMetricsAggregationPersistence,
+  createPgRetentionPersistence,
+} from "./pg-persistence.js";

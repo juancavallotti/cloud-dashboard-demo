@@ -1,14 +1,14 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { getPool, upsertServiceDailyStatsForDayRange } from "@repo/db";
+import { createPgMetricsAggregationPersistence, getPool } from "@repo/db";
+import { DailyMetricsService } from "./services/daily-metrics.service.js";
 
 const app = new Hono();
 
 const jobSecret = process.env.JOB_SECRET;
 
-function utcDayIso(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
+const pool = getPool();
+const metricsService = new DailyMetricsService(createPgMetricsAggregationPersistence(pool));
 
 app.get("/health", (c) => c.text("ok"));
 
@@ -18,22 +18,9 @@ app.post("/run", async (c) => {
   }
 
   const lookbackDays = Math.max(1, Number(process.env.METRICS_LOOKBACK_DAYS ?? "7"));
-  const end = new Date();
-  const start = new Date(end.getTime());
-  start.setUTCDate(start.getUTCDate() - lookbackDays);
+  const result = await metricsService.run({ lookbackDays });
 
-  const startDay = utcDayIso(start);
-  const endDay = utcDayIso(end);
-
-  const pool = getPool();
-  const affected = await upsertServiceDailyStatsForDayRange(pool, startDay, endDay);
-
-  return c.json({
-    startDay,
-    endDay,
-    lookbackDays,
-    upsertRowsAffected: affected,
-  });
+  return c.json(result);
 });
 
 const port = Number(process.env.PORT ?? "8081");

@@ -16,8 +16,8 @@ High-level target architecture: tenants send telemetry through a cloud queue int
 | `apps/pubsub-consumer` | `pubsub-consumer` | Subscribes to a GCP Pub/Sub subscription and inserts rows into `http_request_records`. |
 | `apps/job-retention` | `job-retention` | HTTP service: `POST /run` applies retention (deletes old rows). Intended for **Cloud Scheduler** (or cron) triggers. |
 | `apps/job-daily-metrics` | `job-daily-metrics` | HTTP service: `POST /run` upserts **`service_daily_dashboard_stats`** from `http_request_records` for the last `METRICS_LOOKBACK_DAYS` UTC days. Intended for scheduled runs. |
-| `packages/types` | `@repo/types` | Shared TypeScript types (e.g. `HttpRequestRecord`, `NewHttpRequestRecord`). |
-| `packages/db` | `@repo/db` | `pg` pool (`DATABASE_URL`), migration runner, `insertHttpRequestRecord`, SQL under `migrations/`. |
+| `packages/types` | `@repo/types` | Shared types split across modules; **persistence interfaces** (`HttpIngestPersistence`, `RetentionPersistence`, etc.) for services. |
+| `packages/db` | `@repo/db` | `pg` pool, migrations, SQL queries, and **`createPg*Persistence`** adapters implementing those interfaces. |
 
 ## Data model
 
@@ -87,3 +87,7 @@ For local runs, copy [`.env.example`](../.env.example) to `.env` at the **reposi
 | `PORT` | Job HTTP servers (defaults: 8080 / 8081) |
 
 GCP credentials for Pub/Sub use **Application Default Credentials** (e.g. workload identity on Cloud Run).
+
+## Application services
+
+Runnable apps keep **thin entrypoints** (`index.ts` / Next.js pages). Business logic lives in **`src/services/`** classes that depend on persistence **interfaces** from `@repo/types`; PostgreSQL implementations are **`createPg*Persistence(pool)`** in `@repo/db`. Unit tests (Vitest) mock the persistence interfaces so services stay free of real DB I/O.

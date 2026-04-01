@@ -1,10 +1,8 @@
+import type { HourlyServiceStats, HttpRequestRecord } from "@repo/types";
 import { computeServiceDailyRates } from "@repo/types";
-import {
-  getPool,
-  listHourlyStatsForServiceDay,
-  listHttpRequestRecordsForServiceDay,
-} from "@repo/db";
 import Link from "next/link";
+import { getDashboardViewPersistence } from "@/lib/dashboard-view-persistence";
+import { DashboardViewService } from "@/services/dashboard-view.service";
 
 export const dynamic = "force-dynamic";
 
@@ -47,16 +45,15 @@ export default async function ServiceDayDrillDownPage({
     );
   }
 
-  let hourly: Awaited<ReturnType<typeof listHourlyStatsForServiceDay>> = [];
-  let rawRows: Awaited<ReturnType<typeof listHttpRequestRecordsForServiceDay>> = [];
+  let hourly: HourlyServiceStats[] = [];
+  let rawRows: HttpRequestRecord[] = [];
   let error: string | null = null;
 
   try {
-    const pool = getPool();
-    [hourly, rawRows] = await Promise.all([
-      listHourlyStatsForServiceDay(pool, tenantId, serviceId, day),
-      listHttpRequestRecordsForServiceDay(pool, tenantId, serviceId, day, 500),
-    ]);
+    const dashboard = new DashboardViewService(getDashboardViewPersistence());
+    const drill = await dashboard.getDrillDown(tenantId, serviceId, day, 500);
+    hourly = drill.hourly;
+    rawRows = drill.rawRows;
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load drill-down data.";
   }

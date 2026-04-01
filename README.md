@@ -86,5 +86,6 @@ pnpm db:migrate
 
 ```bash
 pnpm lint      # ESLint via Turborepo
+pnpm test      # Vitest unit tests (services + types)
 pnpm build     # Production build of all packages
 ```
