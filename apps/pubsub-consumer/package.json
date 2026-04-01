@@ -1,0 +1,22 @@
+{
+  "name": "pubsub-consumer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "echo \"no lint configured\""
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.10.0",
+    "@repo/db": "workspace:*",
+    "@repo/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
