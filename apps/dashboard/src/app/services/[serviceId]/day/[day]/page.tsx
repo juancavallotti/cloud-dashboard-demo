@@ -139,6 +139,7 @@ export default async function ServiceDayDrillDownPage({
                 <thead className="bg-neutral-50 text-xs font-medium uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
                     <th className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">Started (UTC)</th>
+                    <th className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">Resource</th>
                     <th className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">Method</th>
                     <th className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">Code</th>
                     <th className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">Ended (UTC)</th>
@@ -148,6 +149,9 @@ export default async function ServiceDayDrillDownPage({
                   {rawRows.map((r) => (
                     <tr key={r.id} className="border-b border-neutral-100 font-mono text-xs dark:border-neutral-800">
                       <td className="px-2 py-1.5">{r.startedAt.toISOString()}</td>
+                      <td className="max-w-[240px] truncate px-2 py-1.5" title={r.resource}>
+                        {r.resource}
+                      </td>
                       <td className="px-2 py-1.5">{r.httpMethod}</td>
                       <td className="px-2 py-1.5">{r.responseCode}</td>
                       <td className="px-2 py-1.5">{r.endedAt.toISOString()}</td>

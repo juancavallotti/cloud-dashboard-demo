@@ -12,6 +12,7 @@ const SERVICES = ["svc-api", "svc-web", "svc-worker"] as const;
 /** Response codes: mostly 2xx, some 401 / 4xx / 5xx for dashboard rates. */
 const CODE_CYCLE = [200, 200, 201, 204, 401, 403, 404, 429, 500, 502] as const;
 const METHOD_CYCLE = ["GET", "GET", "POST", "PUT", "DELETE", "PATCH"] as const;
+const RESOURCE_CYCLE = ["/api/users", "/api/orders", "/health", "/v1/items", "/metrics", "/graphql"] as const;
 
 function utcMidnightDaysAgo(daysAgo: number): Date {
   const d = new Date();
@@ -46,11 +47,13 @@ async function main(): Promise<void> {
           const endedAt = addMs(startedAt, durationMs);
           const responseCode = CODE_CYCLE[n % CODE_CYCLE.length];
           const httpMethod = METHOD_CYCLE[n % METHOD_CYCLE.length];
+          const resource = `${RESOURCE_CYCLE[n % RESOURCE_CYCLE.length]}${n % 5 === 0 ? `/${n % 100}` : ""}`;
           n += 1;
 
           await insertHttpRequestRecord(pool, {
             tenantId,
             serviceId,
+            resource,
             startedAt,
             httpMethod,
             endedAt,

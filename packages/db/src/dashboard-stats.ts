@@ -176,13 +176,14 @@ export async function listHttpRequestRecordsForServiceDay(
     id: string;
     tenant_id: string;
     service_id: string;
+    resource: string;
     started_at: Date;
     http_method: string;
     ended_at: Date;
     response_code: number;
   }>(
     `
-    SELECT id::text, tenant_id, service_id, started_at, http_method, ended_at, response_code
+    SELECT id::text, tenant_id, service_id, resource, started_at, http_method, ended_at, response_code
     FROM http_request_records
     WHERE tenant_id = $1
       AND service_id = $2
@@ -197,6 +198,7 @@ export async function listHttpRequestRecordsForServiceDay(
     id: r.id,
     tenantId: r.tenant_id,
     serviceId: r.service_id,
+    resource: r.resource,
     startedAt: r.started_at,
     httpMethod: r.http_method,
     endedAt: r.ended_at,

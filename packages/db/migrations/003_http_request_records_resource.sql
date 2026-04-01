@@ -1,0 +1,2 @@
+ALTER TABLE http_request_records
+  ADD COLUMN IF NOT EXISTS resource TEXT NOT NULL DEFAULT '';

@@ -3,6 +3,8 @@ export interface HttpRequestRecord {
   id: string;
   tenantId: string;
   serviceId: string;
+  /** Request path or resource identifier (e.g. `/api/users`). */
+  resource: string;
   startedAt: Date;
   httpMethod: string;
   endedAt: Date;

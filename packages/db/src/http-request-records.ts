@@ -8,13 +8,14 @@ export async function insertHttpRequestRecord(
   const id = row.id;
   if (id) {
     const result = await pool.query<{ id: string }>(
-      `INSERT INTO http_request_records (id, tenant_id, service_id, started_at, http_method, ended_at, response_code)
-       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO http_request_records (id, tenant_id, service_id, resource, started_at, http_method, ended_at, response_code)
+       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id::text`,
       [
         id,
         row.tenantId,
         row.serviceId,
+        row.resource,
         row.startedAt,
         row.httpMethod,
         row.endedAt,
@@ -24,12 +25,13 @@ export async function insertHttpRequestRecord(
     return result.rows[0].id;
   }
   const result = await pool.query<{ id: string }>(
-    `INSERT INTO http_request_records (tenant_id, service_id, started_at, http_method, ended_at, response_code)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO http_request_records (tenant_id, service_id, resource, started_at, http_method, ended_at, response_code)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id::text`,
     [
       row.tenantId,
       row.serviceId,
+      row.resource,
       row.startedAt,
       row.httpMethod,
       row.endedAt,

@@ -20,6 +20,7 @@ describe("PubSubIngestService", () => {
         responseCode: 201,
         startedAt: "2026-04-01T10:00:00.000Z",
         endedAt: "2026-04-01T10:00:01.000Z",
+        resource: "/api/foo",
       }),
       "utf8"
     );
@@ -29,6 +30,7 @@ describe("PubSubIngestService", () => {
       expect.objectContaining({
         tenantId: "t1",
         serviceId: "s1",
+        resource: "/api/foo",
         httpMethod: "POST",
         responseCode: 201,
       })
@@ -44,12 +46,13 @@ describe("PubSubIngestService", () => {
         service_id: "sb",
         http_method: "GET",
         response_code: 200,
+        resource: "/v1/status",
       }),
       "utf8"
     );
     await svc.ingestMessage(buf);
     expect(persistence.insertHttpRequestRecord).toHaveBeenCalledWith(
-      expect.objectContaining({ tenantId: "ta", serviceId: "sb" })
+      expect.objectContaining({ tenantId: "ta", serviceId: "sb", resource: "/v1/status" })
     );
   });
 

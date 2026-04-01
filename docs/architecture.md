@@ -21,7 +21,7 @@ High-level target architecture: tenants send telemetry through a cloud queue int
 
 ## Data model
 
-- **`http_request_records`** — Raw request rows (ingest). Columns: tenant, service, start/end, HTTP method, response code. See [`packages/db/migrations`](../packages/db/migrations).
+- **`http_request_records`** — Raw request rows (ingest). Columns: tenant, service, **resource** (path/identifier), start/end, HTTP method, response code. See [`packages/db/migrations`](../packages/db/migrations).
 - **`service_daily_dashboard_stats`** — One row per **tenant**, **service**, and **UTC calendar day** with counts: total requests, success (2xx), unauthorized (401), other 4xx, 5xx. Populated by the daily metrics job from raw data. The dashboard shows **average requests per second** for the day as `request_count / 86400`, plus **rates** (each count ÷ `request_count`). Drill-down uses raw rows and **hourly** buckets (epoch-aligned UTC hours) for the same day.
 
 ## Request and data flows
@@ -51,7 +51,7 @@ flowchart TB
 ```
 
 - **Dashboard**: Reads (and optionally writes) through `@repo/db` in server-only code paths; avoid importing `@repo/db` in client components.
-- **Pub/Sub consumer**: Expects JSON payloads with fields compatible with `NewHttpRequestRecord` (camelCase or snake_case aliases supported in code).
+- **Pub/Sub consumer**: Expects JSON payloads with fields compatible with `NewHttpRequestRecord` (camelCase or snake_case aliases; `resource` defaults to empty string if omitted).
 - **Jobs**: Expose `GET /health` and `POST /run`. Optional shared **`JOB_SECRET`** checked via header `x-job-secret` for non-OIDC setups.
 
 ## GCP deployment (typical)
