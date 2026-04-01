@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated reference architecture diagram (`docs/assets/architecture-diagram.png`).
+
 ### Added
 
+- Root `README.md` for **Cloud Dashboards Demo** with local run instructions.
 - Reference architecture diagram image under `docs/assets/` and embedded in `docs/architecture.md`.
 - Initial monorepo scaffold: pnpm workspaces, Turborepo, shared TypeScript config.
 - Packages `@repo/types` and `@repo/db` (PostgreSQL via `pg`, SQL migrations, `http_request_records` table).
