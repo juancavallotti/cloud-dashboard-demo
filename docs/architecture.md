@@ -12,7 +12,7 @@ High-level target architecture: tenants send telemetry through a cloud queue int
 
 | Path | Name | Role |
 |------|------|------|
-| `apps/dashboard` | `dashboard` | Next.js (App Router) UI: reads `service_daily_dashboard_stats` and raw `http_request_records` for drill-down; transpiles `@repo/types` and `@repo/db`. |
+| `apps/dashboard` | `dashboard` | Next.js (App Router) UI: stacked bar charts (Chart.js) from `service_daily_dashboard_stats`, raw `http_request_records` for drill-down; transpiles `@repo/types` and `@repo/db`. |
 | `apps/pubsub-consumer` | `pubsub-consumer` | Subscribes to a GCP Pub/Sub subscription and inserts rows into `http_request_records`. |
 | `apps/job-retention` | `job-retention` | HTTP service: `POST /run` applies retention (deletes old rows). Intended for **Cloud Scheduler** (or cron) triggers. |
 | `apps/job-daily-metrics` | `job-daily-metrics` | HTTP service: `POST /run` upserts **`service_daily_dashboard_stats`** from `http_request_records` for the last `METRICS_LOOKBACK_DAYS` UTC days. Intended for scheduled runs. |

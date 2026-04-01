@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Dashboard chart layout: responsive **CSS grid** (1 / 2 / 3 columns at default `md` / `xl` breakpoints) and wider max width for multi-column view.
+
 ### Added
 
+- Dashboard home: stacked **bar charts per service** (Chart.js) — each UTC day is a bar with colored segments for 2xx / 401 / other 4xx / 5xx counts; drill-down links preserved.
 - `resource` column on `http_request_records` (migration `003`); wired through types, ingest, drill-down UI, and seed.
 - `pnpm db:seed` / [`packages/db/scripts/seed-tenant-abc123.ts`](packages/db/scripts/seed-tenant-abc123.ts): demo seed for tenant `abc123` (configurable via `SEED_TENANT_ID`, `SEED_DAYS_BACK`).
 - Split `@repo/types` into multiple modules; persistence interfaces (`HttpIngestPersistence`, `RetentionPersistence`, `MetricsAggregationPersistence`, `DashboardViewPersistence`) and `createPg*Persistence` adapters in `@repo/db`.
