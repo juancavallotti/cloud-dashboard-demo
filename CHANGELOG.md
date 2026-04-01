@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `pnpm db:seed` / [`packages/db/scripts/seed-tenant-abc123.ts`](packages/db/scripts/seed-tenant-abc123.ts): demo seed for tenant `abc123` (configurable via `SEED_TENANT_ID`, `SEED_DAYS_BACK`).
 - Split `@repo/types` into multiple modules; persistence interfaces (`HttpIngestPersistence`, `RetentionPersistence`, `MetricsAggregationPersistence`, `DashboardViewPersistence`) and `createPg*Persistence` adapters in `@repo/db`.
 - Service classes per app (`PubSubIngestService`, `RetentionService`, `DailyMetricsService`, `DashboardViewService`) with thin entrypoints; Vitest unit tests using mocked persistence.
 - Table `service_daily_dashboard_stats` (migration `002`) with daily per-tenant, per-service counts (2xx, 401, other 4xx, 5xx); `@repo/db` query helpers and `@repo/types` rate helpers.

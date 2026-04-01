@@ -70,6 +70,14 @@ With PostgreSQL available, ensure `DATABASE_URL` is set in your root `.env` (or 
 pnpm db:migrate
 ```
 
+### Seed demo data (tenant `abc123`)
+
+Inserts synthetic `http_request_records` for the last several UTC days (three services, mixed status codes), then upserts `service_daily_dashboard_stats` for that range. Override tenant or span with env vars below.
+
+```bash
+pnpm db:seed
+```
+
 ### Environment variables (quick reference)
 
 | Variable | When needed |
@@ -80,6 +88,8 @@ pnpm db:migrate
 | `RETENTION_DAYS` | `job-retention` (default: `90`) |
 | `METRICS_LOOKBACK_DAYS` | `job-daily-metrics` re-aggregation window (default: `7`) |
 | `DASHBOARD_TENANT_ID` | Optional: filter the dashboard home to one tenant |
+| `SEED_TENANT_ID` | `pnpm db:seed` only (default: `abc123`) |
+| `SEED_DAYS_BACK` | `pnpm db:seed` only: UTC days of history (default: `7`, max `14`) |
 | `PORT` | Job servers (defaults differ per app; see [docs/architecture.md](docs/architecture.md)) |
 
 ## Other commands

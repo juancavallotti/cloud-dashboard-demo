@@ -71,6 +71,7 @@ flowchart TB
 | `pnpm build` | Turborepo build of all packages. |
 | `pnpm dev` | Turborepo dev (all configured dev tasks). |
 | `pnpm db:migrate` | Run SQL migrations (`DATABASE_URL` required). |
+| `pnpm db:seed` | Insert demo rows for tenant `abc123` (optional `SEED_TENANT_ID`, `SEED_DAYS_BACK`) and refresh daily stats. |
 
 ## Environment variables (summary)
 
